@@ -1,0 +1,33 @@
+import type { DateValue } from '@internationalized/date';
+export interface Employee {
+    id: string;
+    EmpNbr: string;
+    FirstName: string;
+    LastName: string;
+    MidName: string;
+    Suffix: string;
+    Address: string;
+    CityProv: string;
+    Position: string;
+    Assignment: string;
+    SalaryGrade: string;
+    BirthDate: DateValue | null;
+    EmployDate: DateValue | null;
+    RegularDate: DateValue | null;
+    ResignDate: DateValue | null;
+    BasicPay: string;
+    DailyRate: string;
+    HourlyRate: string;
+    Status: string;
+    SSSNbr: string;
+    PHICNbr: string;
+    HDMFNbr: string;
+    TIN: string;
+    Degree: string;
+    AllowReg: string;
+    BPIATM: string;
+    BPIEmpCode: string;
+    PIN: string;
+    PERAAID: string;
+    Group: string;
+}
