@@ -41,4 +41,13 @@ class Employee extends Model
         'PIN',
         'PERAAID'
     ];
+    public function scopeFilter($query, $filters)
+    {
+        $query->when($filters['search'] ?? null, function ($query, $search) {
+            $query->where(function ($q) use ($search) {
+                $q->orWhere('FullName', 'like', "%{$search}%")
+                    ->orWhere('EmpNbr', 'like', "%{$search}%");
+            });
+        });
+    }
 }

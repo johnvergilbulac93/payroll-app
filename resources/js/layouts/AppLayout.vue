@@ -13,7 +13,10 @@ withDefaults(defineProps<Props>(), {
 
 <template>
     <AppLayout :breadcrumbs="breadcrumbs">
-        <Toaster  position="top-center" />
-        <slot />
+        <Toaster position="top-center" />
+        <main class="mt-4">
+            <slot />
+        </main>
+
     </AppLayout>
 </template>

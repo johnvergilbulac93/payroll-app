@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('loan_types', function (Blueprint $table) {
             $table->id();
-            $table->integer('Code');
             $table->string('LoanType');
             $table->softDeletes();
             $table->timestamps();

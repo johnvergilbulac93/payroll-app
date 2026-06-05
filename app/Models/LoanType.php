@@ -10,7 +10,6 @@ class LoanType extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'LoanCode',
         'LoanType'
     ];
 }

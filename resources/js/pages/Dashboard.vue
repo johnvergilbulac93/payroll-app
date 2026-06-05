@@ -3,45 +3,126 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { dashboard } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/vue3';
-import PlaceholderPattern from '../components/PlaceholderPattern.vue';
+import { IconTrendingDown, IconTrendingUp } from "@tabler/icons-vue"
 
+import { Badge } from "@/components/ui/badge"
+import DataTable from "@/components/DataTable.vue"
+import {
+    Card,
+    CardAction,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+} from "@/components/ui/card"
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Dashboard',
         href: dashboard().url,
     },
 ];
+
 </script>
 
 <template>
+
     <Head title="Dashboard" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div
-            class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
-        >
-            <div class="grid auto-rows-min gap-4 md:grid-cols-3">
-                <div
-                    class="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border"
-                >
-                    <PlaceholderPattern />
-                </div>
-                <div
-                    class="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border"
-                >
-                    <PlaceholderPattern />
-                </div>
-                <div
-                    class="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border"
-                >
-                    <PlaceholderPattern />
-                </div>
-            </div>
-            <div
-                class="relative min-h-[100vh] flex-1 rounded-xl border border-sidebar-border/70 md:min-h-min dark:border-sidebar-border"
-            >
-                <PlaceholderPattern />
-            </div>
+            class=" *:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid md:grid-cols-2 gap-4 px-4 sm:grid-cols-1 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
+            <Card class="@container/card">
+                <CardHeader>
+                    <CardDescription>Total Revenue</CardDescription>
+                    <CardTitle class="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+                        $1,250.00
+                    </CardTitle>
+                    <CardAction>
+                        <Badge variant="outline">
+                            <IconTrendingUp />
+                            +12.5%
+                        </Badge>
+                    </CardAction>
+                </CardHeader>
+                <CardFooter class="flex-col items-start gap-1.5 text-sm">
+                    <div class="line-clamp-1 flex gap-2 font-medium">
+                        Trending up this month
+                        <IconTrendingUp class="size-4" />
+                    </div>
+                    <div class="text-muted-foreground">
+                        Visitors for the last 6 months
+                    </div>
+                </CardFooter>
+            </Card>
+            <Card class="@container/card">
+                <CardHeader>
+                    <CardDescription>New Customers</CardDescription>
+                    <CardTitle class="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+                        1,234
+                    </CardTitle>
+                    <CardAction>
+                        <Badge variant="outline">
+                            <IconTrendingDown />
+                            -20%
+                        </Badge>
+                    </CardAction>
+                </CardHeader>
+                <CardFooter class="flex-col items-start gap-1.5 text-sm">
+                    <div class="line-clamp-1 flex gap-2 font-medium">
+                        Down 20% this period
+                        <IconTrendingDown class="size-4" />
+                    </div>
+                    <div class="text-muted-foreground">
+                        Acquisition needs attention
+                    </div>
+                </CardFooter>
+            </Card>
+            <Card class="@container/card">
+                <CardHeader>
+                    <CardDescription>Active Accounts</CardDescription>
+                    <CardTitle class="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+                        45,678
+                    </CardTitle>
+                    <CardAction>
+                        <Badge variant="outline">
+                            <IconTrendingUp />
+                            +12.5%
+                        </Badge>
+                    </CardAction>
+                </CardHeader>
+                <CardFooter class="flex-col items-start gap-1.5 text-sm">
+                    <div class="line-clamp-1 flex gap-2 font-medium">
+                        Strong user retention
+                        <IconTrendingUp class="size-4" />
+                    </div>
+                    <div class="text-muted-foreground">
+                        Engagement exceed targets
+                    </div>
+                </CardFooter>
+            </Card>
+            <Card class="@container/card">
+                <CardHeader>
+                    <CardDescription>Growth Rate</CardDescription>
+                    <CardTitle class="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+                        4.5%
+                    </CardTitle>
+                    <CardAction>
+                        <Badge variant="outline">
+                            <IconTrendingUp />
+                            +4.5%
+                        </Badge>
+                    </CardAction>
+                </CardHeader>
+                <CardFooter class="flex-col items-start gap-1.5 text-sm">
+                    <div class="line-clamp-1 flex gap-2 font-medium">
+                        Steady performance increase
+                        <IconTrendingUp class="size-4" />
+                    </div>
+                    <div class="text-muted-foreground">
+                        Meets growth projections
+                    </div>
+                </CardFooter>
+            </Card>
         </div>
     </AppLayout>
 </template>

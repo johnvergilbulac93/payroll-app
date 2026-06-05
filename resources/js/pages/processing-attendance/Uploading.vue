@@ -8,7 +8,7 @@ import { Head, router } from '@inertiajs/vue3';
 import Button from '@/components/ui/button/Button.vue';
 import Spinner from '@/components/ui/spinner/Spinner.vue';
 import { type BreadcrumbItem } from '@/types';
-import { Check, Search, Upload } from 'lucide-vue-next';
+import { Check, Search, Upload } from '@lucide/vue';
 import { h, ref } from 'vue';
 import { toast } from 'vue-sonner';
 const breadcrumbs: BreadcrumbItem[] = [
@@ -67,57 +67,39 @@ const uploadFile = () => {
 
 <template>
     <AppLayout :breadcrumbs="breadcrumbs">
+
         <Head title="Upload Biometrics .DAT File" />
 
         <h1 class="sr-only">Attendance Processing</h1>
         <AttendanceProcessingLayout>
             <div class="flex flex-col space-y-6">
-                <HeadingSmall
-                    title="Upload Biometrics .DAT File"
-                    description="Manage Biometrics .DAT File "
-                />
+                <HeadingSmall title="Upload Biometrics .DAT File" description="Manage Biometrics .DAT File " />
 
                 <div class="flex w-full items-center justify-center">
                     <div
-                        class="flex h-64 w-full flex-col items-center justify-center rounded border border-dashed bg-[#f9fafb]"
-                    >
-                        <div
-                            class="flex flex-col items-center justify-center pt-5 pb-6 text-[#4a5565]"
-                        >
+                        class="flex h-64 w-full flex-col items-center justify-center rounded border border-dashed bg-[#f9fafb]">
+                        <div class="flex flex-col items-center justify-center pt-5 pb-6 text-[#4a5565]">
                             <Upload />
                             <p class="mb-2 text-sm">
                                 Click the button below to upload
                             </p>
                             <p class="mb-4 text-xs">.DAT FILE</p>
-                            <Button
-                                type="button"
-                                class="cursor-pointer"
-                                :disabled="isLoading"
-                                @click="triggerFileSelect"
-                            >
+                            <Button type="button" class="cursor-pointer" :disabled="isLoading"
+                                @click="triggerFileSelect">
                                 <Search v-if="!isLoading" />
                                 <Spinner v-if="isLoading" />
 
                                 {{ isLoading ? 'Uploading...' : 'Browse file' }}
                             </Button>
-                            <p
-                                v-if="selectedFileName"
-                                class="mt-3 text-sm text-muted-foreground"
-                            >
+                            <p v-if="selectedFileName" class="mt-3 text-sm text-muted-foreground">
                                 Selected file:
                                 <span class="font-medium">{{
                                     selectedFileName
-                                }}</span>
+                                    }}</span>
                             </p>
                         </div>
                     </div>
-                    <input
-                        ref="fileInput"
-                        type="file"
-                        accept=".dat"
-                        class="hidden"
-                        @change="onFileChange"
-                    />
+                    <input ref="fileInput" type="file" accept=".dat" class="hidden" @change="onFileChange" />
                 </div>
             </div>
         </AttendanceProcessingLayout>

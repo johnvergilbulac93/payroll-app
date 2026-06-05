@@ -9,22 +9,20 @@ use App\Trait\DateTraitHelper;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
+use App\Models\Group;
+
 class EmployeeController extends Controller
 {
 
     use DateTraitHelper;
+
     public function index(Request $request)
     {
         $search = $request->input('search');
-        $page = $request->input("page");
+        // $page = $request->input("page");
         $limit = $request->input("limit");
 
-
-        $employees = Employee::query()
-            ->when($search, function ($query, $search) {
-                $query->where('FullName', 'like', "%{$search}%")
-                    ->orWhere('EmpNbr', 'like', "%{$search}%");
-            })
+        $employees = Employee::filter($request)
             ->orderBy('updated_at', 'desc')
             ->paginate($limit)
             ->withQueryString(); // keep query string during pagination
@@ -39,7 +37,7 @@ class EmployeeController extends Controller
 
     public function create()
     {
-        return inertia('employee/Form');
+        return inertia('employee/Form', ['groups' => Group::select(['Code as value', 'Description as label'])->get()]);
     }
 
     public function store(EmployeeFormRequest $request)
@@ -59,6 +57,7 @@ class EmployeeController extends Controller
         $employee = Employee::findOrFail($id);
         return inertia('employee/Form', [
             'employee' => $employee,
+            'groups' => Group::select(['Code as value', 'Description as label'])->get(),
         ]);
     }
     public function destroy($id)

@@ -3,66 +3,136 @@ import Heading from '@/components/Heading.vue';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/AppLayout.vue';
 
-import { index as userIndex } from '@/routes/user';
-import { Head } from '@inertiajs/vue3';
+import { Head, router } from '@inertiajs/vue3';
 
-import DataTable from '@/layouts/datatable/DataTable.vue';
+import DataTable from '@/components/DataTable.vue';
 import { type BreadcrumbItem } from '@/types';
-import { SquarePen, Trash2 } from 'lucide-vue-next';
+import { SquarePen, Trash2 } from '@lucide/vue';
+import { h, reactive } from 'vue'
+import { ColumnDef } from '@tanstack/vue-table';
+import { User } from '@/types';
+import DragHandle from '@/components/DragHandle.vue';
+import debounce from 'lodash.debounce';
+import { index } from '@/routes/user';
+
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'User Maintenance',
-        href: userIndex().url,
+        href: index().url,
     },
 ];
-const columns = [
-    { label: 'Name', key: 'name' },
-    { label: 'Email', key: 'email' },
-    { label: 'Role', key: 'role' },
-    { label: 'Actions', key: 'actions' },
-];
 
-const users = [
-    { id: 1, name: 'John', email: 'john@test.com', role: 'Admin' },
-    { id: 2, name: 'Jane', email: 'jane@test.com', role: 'User' },
-];
+const onEdit = (id) => {
+    console.log(id)
+}
+const onDelete = (id) => {
+    console.log(id)
+}
 
-const editUser = (user) => {
-    console.log('Edit', user);
-};
+const columns: ColumnDef<User>[] = [
+    {
+        id: "id",
+        header: () => null,
+        cell: ({ row }) => h(DragHandle),
+    },
+    // {
+    //     id: "select",
+    //     header: ({ table }) => h(Checkbox, {
+    //         "modelValue": table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && "indeterminate"),
+    //         "onUpdate:modelValue": value => table.toggleAllPageRowsSelected(!!value),
+    //         "aria-label": "Select all",
+    //     }),
+    //     cell: ({ row }) => h(Checkbox, {
+    //         "modelValue": row.getIsSelected(),
+    //         "onUpdate:modelValue": value => row.toggleSelected(!!value),
+    //         "aria-label": "Select row",
+    //     }),
+    //     enableSorting: false,
+    //     enableHiding: false,
+    // },
+    {
+        accessorKey: "name",
+        header: "Name",
+        enableHiding: false,
+    },
+    {
+        accessorKey: "email",
+        header: "Email Address",
+    },
+    {
+        accessorKey: "status",
+        header: "Status",
+    },
+    {
+        accessorKey: "created_at",
+        header: "Date Created",
+    },
+    {
+        id: "actions",
+        header: "Actions",
+        cell: ({ row }) =>
+            h("div", { class: "flex gap-2" }, [
+                h(Button, {
+                    variant: "outline",
+                    class: "cursor-pointer",
+                    onClick: () => { onEdit(row.original.id) },
+                }, {
+                    default: () => [h(SquarePen, { class: 'text-blue-500' })],
+                }),
+
+                h(Button, {
+                    variant: "outline",
+                    class: "cursor-pointer",
+                    onClick: () => { onDelete(row.original.id) },
+                }, {
+                    default: () => [h(Trash2, { class: 'text-red-500' })],
+                }),
+            ]),
+    }
+]
+const props = withDefaults(defineProps<{
+    users: any[]
+    filter: any[]
+}>(), {
+})
+const form = reactive({
+    search: props.filter?.search || '',
+    page: 1,
+    limit: 10,
+});
+const filter = debounce(() => {
+    router.get(index().url, form, {
+        preserveState: true,
+        replace: true,
+    });
+}, 400);
 const createUser = () => {
-    console.log('Create User');
+    router.get('te');
 };
+const perPageChange = (value) => {
+    form.limit = value;
+    filter();
+};
+
+const onSearch = (value: string) => {
+    form.search = value;
+    filter();
+};
+
 </script>
 
 <template>
+
     <Head title="User Maintenance" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="px-4 py-6">
-            <Heading
-                title="User Maintenance"
-                description="Manage user accounts"
-            />
+            <Heading title="User Maintenance" description="Manage user accounts" />
 
-            <DataTable
-                @create="createUser"
-                :columns="columns"
-                :rows="users"
-                row-key="id"
-                :button-text="'User'"
-            >
-                <!-- Custom Actions Column -->
-                <template #cell-actions="{ row }">
-                    <Button class="cursor-pointer" variant="outline" size="sm">
-                        <SquarePen class="text-primary" />
-                    </Button>
-                    &nbsp;
-                    <Button class="cursor-pointer" variant="outline" size="sm">
-                        <Trash2 class="text-destructive" />
-                    </Button>
-                </template>
-            </DataTable>
+            <DataTable @search="onSearch" @per-page="perPageChange" @add="createUser" :button-text="'New User'"
+                :data="users" :columns="columns" />
+
+
         </div>
     </AppLayout>
 </template>

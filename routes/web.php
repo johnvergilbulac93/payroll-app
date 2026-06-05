@@ -18,3 +18,6 @@ require __DIR__ . '/settings.php';
 require __DIR__ . '/employee.php';
 require __DIR__ . '/attendance-processing.php';
 require __DIR__ . '/user.php';
+// require __DIR__ . '/group.php';
+require __DIR__ . '/loans.php';
+require __DIR__ . '/masterfile.php';

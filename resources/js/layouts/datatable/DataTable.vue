@@ -5,7 +5,7 @@ import {
     InputGroupAddon,
     InputGroupInput,
 } from '@/components/ui/input-group';
-import { SearchIcon, UserPlus } from 'lucide-vue-next';
+import { PlusCircle, SearchIcon, UserPlus } from '@lucide/vue';
 import { ref, watch } from 'vue';
 
 type Column = {
@@ -51,50 +51,31 @@ watch(search, (value) => {
         </template>
         <template v-if="canAdd">
             <Button @click="emit('create')" class="cursor-pointer">
-                <UserPlus /> Add {{ buttonText }}</Button
-            >
+                <PlusCircle /> {{ buttonText }}
+            </Button>
         </template>
     </div>
     <div class="relative overflow-x-auto rounded-md border-t border-r border-l">
         <table class="text-body w-full text-left text-sm rtl:text-right">
             <thead class="border-b bg-[#f9fafb] text-sm text-[#586271]">
                 <tr>
-                    <th
-                        scope="col"
-                        class="px-6 py-3 font-medium"
-                        v-for="col in columns"
-                        :key="col.key"
-                    >
+                    <th scope="col" class="px-6 py-3 font-medium" v-for="col in columns" :key="col.key">
                         {{ col.label }}
                     </th>
                 </tr>
             </thead>
             <tbody>
-                <tr
-                    class="border-b hover:bg-[#f9fafb]"
-                    v-for="row in rows"
-                    :key="row[rowKey]"
-                >
+                <tr class="border-b hover:bg-[#f9fafb]" v-for="row in rows" :key="row[rowKey]">
                     <td class="px-6 py-3" v-for="col in columns" :key="col.key">
                         <!-- Slot for custom cell -->
-                        <slot
-                            :name="`cell-${col.key}`"
-                            :row="row"
-                            :value="row[col.key]"
-                        >
+                        <slot :name="`cell-${col.key}`" :row="row" :value="row[col.key]">
                             {{ row[col.key] }}
                         </slot>
                     </td>
                 </tr>
-                <tr
-                    class="border-b hover:bg-[#f9fafb]"
-                    v-if="rows.length === 0"
-                >
+                <tr class="border-b hover:bg-[#f9fafb]" v-if="rows.length === 0">
                     <td class="px-6 py-3 text-center" :colspan="columns.length">
-                        <span
-                            class="text-xs font-medium text-[#586271] uppercase"
-                            >No data found</span
-                        >
+                        <span class="text-xs font-medium text-[#586271] uppercase">No data found</span>
                     </td>
                 </tr>
             </tbody>

@@ -13,7 +13,7 @@ import {
     getLocalTimeZone,
     today,
 } from '@internationalized/date';
-import { CalendarDays } from 'lucide-vue-next';
+import { CalendarDays } from '@lucide/vue';
 import { computed } from 'vue';
 
 // Props
@@ -49,32 +49,23 @@ const updateDate = (value: DateValue) => {
 <template>
     <Popover v-slot="{ close }">
         <PopoverTrigger as-child>
-            <Button
-                variant="outline"
-                :class="
-                    cn(
-                        'w-full justify-start text-left font-normal',
-                        !date && 'text-muted-foreground',
-                    )
-                "
-            >
+            <Button variant="outline" :class="cn(
+                'w-full justify-start text-left font-normal',
+                !date && 'text-muted-foreground',
+            )
+                ">
                 <CalendarDays class="mr-2" />
                 {{ displayText }}
             </Button>
         </PopoverTrigger>
         <PopoverContent class="w-auto p-0" align="start">
-            <Calendar
-                v-model="date"
-                :default-placeholder="defaultPlaceholder"
-                layout="month-and-year"
-                initial-focus
+            <Calendar v-model="date" :default-placeholder="defaultPlaceholder" layout="month-and-year" initial-focus
                 @update:model-value="
                     (val) => {
                         updateDate(val);
                         close();
                     }
-                "
-            />
+                " />
         </PopoverContent>
     </Popover>
 </template>

@@ -13,17 +13,17 @@ return new class extends Migration
     {
         Schema::create('loan_masters', function (Blueprint $table) {
             $table->id();
-            $table->integer('LoanType');
+            $table->integer('LoanTypeID');
             $table->string('EmpNbr');
             $table->decimal('OrigBal', 10, 2);
             $table->decimal('DedAmt', 10, 2);
-            $table->dateTime('StartDate');
+            $table->date('StartDate');
             $table->string('Frequency')->nullable();
             $table->decimal('BalanceAmt', 10, 2);
-            $table->dateTime('BalanceasofDate');
-            $table->dateTime('Crtd_Date');
-            $table->string('Crtd_User');
-            $table->dateTime('LUpd_Date');
+            $table->decimal('BalanceasofDate', 10, 2)->nullable();
+            $table->date('Crtd_Date')->nullable();
+            $table->string('Crtd_User')->nullable();
+            $table->date('LUpd_Date')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

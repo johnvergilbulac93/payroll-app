@@ -1,12 +1,7 @@
 <script setup lang="ts">
 import Heading from '@/components/Heading.vue';
 import { Button } from '@/components/ui/button';
-import {
-    Tooltip,
-    TooltipContent,
-    TooltipProvider,
-    TooltipTrigger,
-} from '@/components/ui/tooltip';
+
 import AppLayout from '@/layouts/AppLayout.vue';
 import {
     create as employeeCreate,
@@ -16,32 +11,105 @@ import {
 } from '@/routes/employees';
 
 import { Head, router } from '@inertiajs/vue3';
-
-import DataTable from '@/layouts/datatable/DataTable.vue';
 import Dialog from '@/layouts/Dialog/Dialog.vue';
-import Pagination from '@/layouts/pagination/Pagination.vue';
 import { type BreadcrumbItem } from '@/types';
 import debounce from 'lodash.debounce';
-import { Check, SquarePen, Trash2 } from 'lucide-vue-next';
+import { Check, SquarePen, Trash2 } from '@lucide/vue';
 import { h, reactive, ref } from 'vue';
 import { toast } from 'vue-sonner';
+import { Employee } from '@/types/employee';
+import { ColumnDef } from '@tanstack/vue-table';
+import DragHandle from '@/components/DragHandle.vue';
+import { Checkbox } from '@/components/ui/checkbox';
+import DataTable from '@/components/DataTable.vue';
+
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Employee 201',
         href: employeeIndex().url,
     },
 ];
-const columns = [
-    { label: 'Employee Number', key: 'EmpNbr' },
-    { label: 'Full Name', key: 'FullName' },
-    { label: 'Position', key: 'Position' },
-    { label: 'Area of Assignment', key: 'Assignment' },
-    { label: 'Salary Grade', key: 'SalaryGrade' },
-    { label: 'Basic Pay', key: 'BasicPay' },
-    { label: 'Actions', key: 'actions' },
-];
+const columns: ColumnDef<Employee>[] = [
+    {
+        id: "id",
+        header: () => null,
+        cell: ({ row }) => h(DragHandle),
+    },
+    // {
+    //     id: "select",
+    //     header: ({ table }) => h(Checkbox, {
+    //         "modelValue": table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && "indeterminate"),
+    //         "onUpdate:modelValue": value => table.toggleAllPageRowsSelected(!!value),
+    //         "aria-label": "Select all",
+    //     }),
+    //     cell: ({ row }) => h(Checkbox, {
+    //         "modelValue": row.getIsSelected(),
+    //         "onUpdate:modelValue": value => row.toggleSelected(!!value),
+    //         "aria-label": "Select row",
+    //     }),
+    //     enableSorting: false,
+    //     enableHiding: false,
+    // },
+    {
+        accessorKey: "EmpNbr",
+        header: "Employee Number",
+        enableHiding: false,
+    },
+    {
+        accessorKey: "FullName",
+        header: "Full Name",
+        enableHiding: false,
+    },
+    {
+        accessorKey: "Position",
+        header: "Position",
+    },
+    {
+        accessorKey: "Area of Assignment",
+        header: "Assignment",
+    },
+    {
+        accessorKey: "SalaryGrade",
+        header: "Salary Grade",
+    },
+    {
+        accessorKey: "BasicPay",
+        header: "Basic Pay",
+        cell: ({ row }) => {
+            return formatCurrency(row.getValue("BasicPay") ?? 0)
+        }
+    },
+    {
+        id: "actions",
+        header: "Actions",
+        cell: ({ row }) =>
+            h("div", { class: "flex gap-2" }, [
+                h(Button, {
+                    variant: "outline",
+                    class: "cursor-pointer",
+                    onClick: () => { onEdit(row.original.id) },
+                }, {
+                    default: () => [h(SquarePen, { class: 'text-blue-500' })],
+                }),
 
-const props = defineProps({ employees: Object, filter: Object });
+                h(Button, {
+                    variant: "outline",
+                    class: "cursor-pointer",
+                    onClick: () => { onDelete(row.original.id) },
+                }, {
+                    default: () => [h(Trash2, { class: 'text-red-500' })],
+                }),
+            ]),
+    }
+]
+
+const props = withDefaults(defineProps<{
+    employees: any[]
+    filter: any[]
+    groups: any[]
+}>(), {
+})
+
 const form = reactive({
     search: props.filter?.search || '',
     page: 1,
@@ -101,79 +169,19 @@ const onConfirmDelete = () => {
 </script>
 
 <template>
+
     <Head title="Employee 201" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="px-4 py-6">
-            <Heading
-                title="Employee 201 Master List"
-                description="Manage Employee 201 records"
-            />
+            <Heading title="Employee 201 Master List" description="Manage Employee 201 records" />
 
-            <DataTable
-                @create="createEmployee"
-                @search="onSearch"
-                :columns="columns"
-                :rows="employees?.data"
-                row-key="id"
-                button-text="Employee"
-            >
-                <template #cell-BasicPay="{ row }">
-                    {{ formatCurrency(row.BasicPay) }}
-                </template>
-                <!-- Custom Actions Column -->
-                <template #cell-actions="{ row }">
-                    <TooltipProvider>
-                        <Tooltip>
-                            <TooltipTrigger as-child>
-                                <Button
-                                    class="cursor-pointer"
-                                    variant="outline"
-                                    size="sm"
-                                    @click="onEdit(row.id)"
-                                >
-                                    <SquarePen class="text-primary" />
-                                </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                                <p>Edit</p>
-                            </TooltipContent>
-                        </Tooltip>
-                    </TooltipProvider>
+            <DataTable @search="onSearch" @per-page="perPageChange" @add="createEmployee" :button-text="'New Employee'"
+                :data="employees" :columns="columns" />
 
-                    &nbsp;
-
-                    <TooltipProvider>
-                        <Tooltip>
-                            <TooltipTrigger as-child>
-                                <Button
-                                    class="cursor-pointer"
-                                    variant="outline"
-                                    size="sm"
-                                    @click="onDelete(row.id)"
-                                >
-                                    <Trash2 class="text-destructive" />
-                                </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                                <p>Delete</p>
-                            </TooltipContent>
-                        </Tooltip>
-                    </TooltipProvider>
-                </template>
-            </DataTable>
-            <Pagination
-                :pagination="employees"
-                @per-page-change="perPageChange"
-            />
-            <Dialog
-                v-model="visible"
-                title="Confirm Deletion"
+            <Dialog v-model="visible" title="Confirm Deletion"
                 message="Are you sure you want to delete this employee? This action cannot be undone."
-                confirmText="Delete"
-                cancelText="Cancel"
-                @confirm="onConfirmDelete"
-            />
+                confirmText="Delete" cancelText="Cancel" @confirm="onConfirmDelete" />
         </div>
     </AppLayout>
 </template>
