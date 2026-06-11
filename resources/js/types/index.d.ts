@@ -27,6 +27,14 @@ export interface NavItem2 {
     Icon?: LucideIcon;
     Children: Children[]
 }
+export interface Filter {
+    search : string
+}
+export interface Helper {
+    value: string | number
+    label: string
+}
+
 
 
 export type AppPageProps<

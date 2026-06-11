@@ -1,5 +1,5 @@
 export interface LoanType {
-    id: string | number;
+    id?: string | number;
     LoanType: string;
     Route: string;
 }

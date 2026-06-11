@@ -17,16 +17,15 @@ import {
     PopoverTrigger,
 } from '@/components/ui/popover'
 
-const props = defineProps({
-    items: {
-        type: Array,
-        default: () => [],
-    },
-    labelText: {
-        type: String,
-        default: 'Please select an item.',
-    },
+
+const props = withDefaults(defineProps<{
+    items: any[];
+    labelText?: string;
+
+}>(), {
+    labelText: 'Please select an item.'
 })
+
 
 const open = ref(false)
 const value = defineModel<string>({
@@ -46,20 +45,33 @@ function selectItem(selectedValue: string) {
 <template>
     <Popover v-model:open="open">
         <PopoverTrigger as-child>
-            <Button variant="outline" role="combobox" :aria-expanded="open" class="w-50 justify-between">
+            <Button
+                variant="outline"
+                role="combobox"
+                :aria-expanded="open"
+                class="w-50 justify-between"
+            >
                 {{ selectedFramework?.label || props.labelText }}
                 <ChevronsUpDownIcon class="opacity-50" />
             </Button>
         </PopoverTrigger>
         <PopoverContent class="w-50 p-0">
             <Command>
-                <CommandInput class="h-9" placeholder="Search..." />
+                <CommandInput
+                    class="h-9"
+                    placeholder="Search..."
+                />
                 <CommandList>
                     <CommandEmpty>No record found.</CommandEmpty>
                     <CommandGroup>
-                        <CommandItem v-for="item in items" :key="item.value" :value="item.value" @select="(ev) => {
-                            selectItem(ev.detail.value as string)
-                        }">
+                        <CommandItem
+                            v-for="item in items"
+                            :key="item.value"
+                            :value="item.value"
+                            @select="(ev) => {
+                                selectItem(ev.detail.value as string)
+                            }"
+                        >
                             {{ item.label }}
                             <CheckIcon :class="cn(
                                 'ml-auto',

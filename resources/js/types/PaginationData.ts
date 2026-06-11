@@ -15,5 +15,4 @@ export interface PaginatedData {
         label: string;
         active: boolean;
     }>;
-    data: Employee
 }

@@ -1,12 +1,24 @@
-import type { DateValue } from '@internationalized/date';
+use Illuminate\Support\Facades\Route;
 export interface Loan {
-    id: string | number;
+    id?: string | number;
+    public_id: string;
     LoanTypeID: string ;
     EmpNbr: string;
-    OrigBal: string | number;
-    DedAmt: string | number;
-    StartDate:  DateValue | null;
+    OrigBal: number;
+    DedAmt:  number;
+    StartDate:  string ;
     Frequency: string;
-    BalanceAmt: string | number;
-    BalanceasofDate: string | number;
+    BalanceAmt: number;
+    BalanceasofDate: number;
+}
+
+export interface LoanError {
+    LoanTypeID: string ;
+    EmpNbr: string;
+    OrigBal: string;
+    DedAmt: string;
+    StartDate:  string;
+    Frequency: string;
+    BalanceAmt: string;
+    BalanceasofDate: string;
 }

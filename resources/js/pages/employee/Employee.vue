@@ -11,17 +11,18 @@ import {
 } from '@/routes/employees';
 
 import { Head, router } from '@inertiajs/vue3';
-import Dialog from '@/layouts/Dialog/Dialog.vue';
-import { type BreadcrumbItem } from '@/types';
-import debounce from 'lodash.debounce';
-import { Check, SquarePen, Trash2 } from '@lucide/vue';
+import Dialog from '@/layouts/dialog/Dialog.vue';
+import { Filter, type BreadcrumbItem } from '@/types';
+import debounce from 'lodash/debounce';
+import { SquarePen, Trash2, } from '@lucide/vue';
 import { h, reactive, ref } from 'vue';
 import { toast } from 'vue-sonner';
 import { Employee } from '@/types/employee';
 import { ColumnDef } from '@tanstack/vue-table';
 import DragHandle from '@/components/DragHandle.vue';
-import { Checkbox } from '@/components/ui/checkbox';
 import DataTable from '@/components/DataTable.vue';
+import { IconCircleCheckFilled, IconXboxXFilled, IconDotsVertical } from '@tabler/icons-vue';
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/ui/dropdown-menu';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -33,23 +34,8 @@ const columns: ColumnDef<Employee>[] = [
     {
         id: "id",
         header: () => null,
-        cell: ({ row }) => h(DragHandle),
+        cell: () => h(DragHandle),
     },
-    // {
-    //     id: "select",
-    //     header: ({ table }) => h(Checkbox, {
-    //         "modelValue": table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && "indeterminate"),
-    //         "onUpdate:modelValue": value => table.toggleAllPageRowsSelected(!!value),
-    //         "aria-label": "Select all",
-    //     }),
-    //     cell: ({ row }) => h(Checkbox, {
-    //         "modelValue": row.getIsSelected(),
-    //         "onUpdate:modelValue": value => row.toggleSelected(!!value),
-    //         "aria-label": "Select row",
-    //     }),
-    //     enableSorting: false,
-    //     enableHiding: false,
-    // },
     {
         accessorKey: "EmpNbr",
         header: "Employee Number",
@@ -80,33 +66,61 @@ const columns: ColumnDef<Employee>[] = [
         }
     },
     {
-        id: "actions",
-        header: "Actions",
-        cell: ({ row }) =>
-            h("div", { class: "flex gap-2" }, [
-                h(Button, {
-                    variant: "outline",
-                    class: "cursor-pointer",
-                    onClick: () => { onEdit(row.original.id) },
-                }, {
-                    default: () => [h(SquarePen, { class: 'text-blue-500' })],
-                }),
+        accessorKey: "Status",
+        header: "Status",
+        cell: ({ row }) => {
+            const status = row.getValue("Status")
 
-                h(Button, {
-                    variant: "outline",
-                    class: "cursor-pointer",
-                    onClick: () => { onDelete(row.original.id) },
-                }, {
-                    default: () => [h(Trash2, { class: 'text-red-500' })],
+            return h("div", { class: "flex items-center gap-2" }, [
+                status == 1
+                    ? h(IconCircleCheckFilled, { class: "h-4 w-4 text-emerald-500" })
+                    : h(IconXboxXFilled, { class: "h-4 w-4 text-red-500" }),
+                h("span", { class: 'text-sm' }, status ? 'Active' : 'Inactive'),
+            ])
+        },
+    },
+    {
+        id: "actions",
+        cell: ({ row }) => h(DropdownMenu, {}, {
+            default: () => [
+                h(DropdownMenuTrigger, { asChild: true }, {
+                    default: () => h(Button, {
+                        variant: "ghost",
+                        class: "h-8 w-8 p-0 cursor-pointer",
+                    }, {
+                        default: () => [
+                            h("span", { class: "sr-only" }, "Open menu"),
+                            h(IconDotsVertical, { class: "h-4 w-4 " }),
+                        ],
+                    }),
                 }),
-            ]),
-    }
+                h(DropdownMenuContent, { align: "end" }, {
+                    default: () => [
+                        h(DropdownMenuItem, {
+                            class: "cursor-pointer",
+                            onSelect: () => {
+                                onEdit(row.original.public_id)
+                            },
+                        }, () => [
+                            h(SquarePen, { class: "w-4 h-4  " }),
+                            "Edit"
+                        ]),
+                        h(DropdownMenuItem, {
+                            class: "cursor-pointer text-red-500",
+                            onSelect: () => {
+                                onDelete(row.original.public_id)
+                            },
+                        }, () => [h(Trash2, { class: "w-4 h-4  " }), "Delete"]),
+                    ],
+                }),
+            ],
+        }),
+    },
 ]
 
 const props = withDefaults(defineProps<{
     employees: any[]
-    filter: any[]
-    groups: any[]
+    filter: Filter
 }>(), {
 })
 
@@ -115,8 +129,9 @@ const form = reactive({
     page: 1,
     limit: 10,
 });
-const employeeID = ref('');
-const visible = ref(false);
+const visible = ref<boolean>(false);
+const publicId = ref<string>('');
+
 const filter = debounce(() => {
     router.get(employeeIndex().url, form, {
         preserveState: true,
@@ -135,13 +150,13 @@ const formatCurrency = (value: number | string) => {
     }).format(Number(value));
 };
 
-const onEdit = (employee) => {
-    router.visit(employeeShow(employee));
+const onEdit = (id: string) => {
+    router.visit(employeeShow(id));
 };
 const createEmployee = () => {
     router.get(employeeCreate());
 };
-const perPageChange = (value) => {
+const perPageChange = (value: number) => {
     form.limit = value;
     filter();
 };
@@ -150,18 +165,19 @@ const onSearch = (value: string) => {
     form.search = value;
     filter();
 };
-const onDelete = (id) => {
+const onDelete = (id: string) => {
     visible.value = true;
-    employeeID.value = id;
+    publicId.value = id;
 };
 
 const onConfirmDelete = () => {
-    router.delete(employeeDestroy(employeeID.value), {
+    router.delete(employeeDestroy(publicId.value), {
         preserveState: true,
         onSuccess: () => {
             visible.value = false;
-            toast.success('Successfully Deleted. ', {
-                icon: () => h(Check, { class: 'h-5 w-5 text-green-500' }), // correct way
+            toast.success('Success', {
+                description: 'Employee deleted successfully.',
+                icon: () => h(IconCircleCheckFilled, { class: 'h-5 w-5 text-emerald-500 ' }),
             });
         },
     });
@@ -174,14 +190,28 @@ const onConfirmDelete = () => {
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="px-4 py-6">
-            <Heading title="Employee 201 Master List" description="Manage Employee 201 records" />
+            <Heading
+                title="Employee 201 Master"
+                description="Manage employees 201 record"
+            />
 
-            <DataTable @search="onSearch" @per-page="perPageChange" @add="createEmployee" :button-text="'New Employee'"
-                :data="employees" :columns="columns" />
+            <DataTable
+                @search="onSearch"
+                @per-page="perPageChange"
+                @add="createEmployee"
+                :button-text="'New Employee'"
+                :data="employees"
+                :columns="columns"
+            />
 
-            <Dialog v-model="visible" title="Confirm Deletion"
-                message="Are you sure you want to delete this employee? This action cannot be undone."
-                confirmText="Delete" cancelText="Cancel" @confirm="onConfirmDelete" />
+            <Dialog
+                v-model="visible"
+                title="Confirmation"
+                description="Are you sure you want to delete this employee? This action cannot be undone."
+                confirmText="Delete"
+                cancelText="Cancel"
+                @confirm="onConfirmDelete"
+            />
         </div>
     </AppLayout>
 </template>

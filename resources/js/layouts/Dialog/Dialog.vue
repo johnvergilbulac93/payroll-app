@@ -56,16 +56,23 @@ const onCancel = () => {
         <DialogContent>
             <DialogHeader>
                 <DialogTitle>{{ props.title || 'Are you sure?' }}</DialogTitle>
-                <DialogDescription>
+                <DialogDescription class="mt-1">
                     {{ props.description || 'This action cannot be undone.' }}
                 </DialogDescription>
             </DialogHeader>
 
             <DialogFooter class="flex justify-end gap-2">
-                <Button variant="outline" @click="onCancel" class="cursor-pointer">
+                <Button
+                    variant="outline"
+                    @click="onCancel"
+                    class="cursor-pointer"
+                >
                     {{ props.cancelText || 'Cancel' }}
                 </Button>
-                <Button variant="destructive" @click="onConfirm" class="cursor-pointer">
+                <Button
+                    @click="onConfirm"
+                    class="cursor-pointer"
+                >
                     {{ props.confirmText || 'Confirm' }}
                 </Button>
             </DialogFooter>

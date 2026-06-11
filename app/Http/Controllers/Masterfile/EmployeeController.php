@@ -14,8 +14,6 @@ use App\Models\Group;
 class EmployeeController extends Controller
 {
 
-    use DateTraitHelper;
-
     public function index(Request $request)
     {
         $search = $request->input('search');
@@ -44,39 +42,31 @@ class EmployeeController extends Controller
     {
         $employee = $request->validated();
         $employee['FullName'] = $request->LastName . ', ' . $request->FirstName . ' ' . $request->MidName . ' ' . $request->Suffix;
-        $employee['BirthDate'] =  $this->formatToMDY($request->BirthDate);
-        $employee['EmployDate'] =  $this->formatToMDY($request->EmployDate);
-        $employee['RegularDate'] =  $this->formatToMDY($request->RegularDate);
-        $employee['ResignDate'] =  $this->formatToMDY($request->ResignDate);
         Employee::create($employee);
         return redirect()->route('employees.index')
             ->with('message', 'Successfully saved.');
     }
-    public function show($id)
+    public function show(string $id)
     {
-        $employee = Employee::findOrFail($id);
+        $employee = Employee::findByPublicId($id);
         return inertia('employee/Form', [
             'employee' => $employee,
             'groups' => Group::select(['Code as value', 'Description as label'])->get(),
         ]);
     }
-    public function destroy($id)
+    public function destroy(string $id)
     {
-        $employee = Employee::findOrFail($id);
+        $employee = Employee::findByPublicId($id);
         $employee->delete();
         return redirect()->route('employees.index')
             ->with('message', 'Successfully deleted.');
     }
 
-    public function update(EmployeeFormRequest $request, $id)
+    public function update(EmployeeFormRequest $request, string $id)
     {
-        $employee = Employee::findOrFail($id);
+        $employee = Employee::findByPublicId($id);
         $data = $request->validated();
         $data['FullName'] = $request->LastName . ', ' . $request->FirstName . ' ' . $request->MidName . ' ' . $request->Suffix;
-        $data['BirthDate'] =  $this->formatToMDY($request->BirthDate);
-        $data['EmployDate'] =  $this->formatToMDY($request->EmployDate);
-        $data['RegularDate'] =  $this->formatToMDY($request->RegularDate);
-        $data['ResignDate'] =  $this->formatToMDY($request->ResignDate);
         $employee->update($data);
         return redirect()->route('employees.index')
             ->with('message', 'Successfully updated.');

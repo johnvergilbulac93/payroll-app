@@ -1,19 +1,8 @@
 <script setup lang="ts">
 import Heading from '@/components/Heading.vue';
 import { Button } from '@/components/ui/button';
-import {
-    Tooltip,
-    TooltipContent,
-    TooltipProvider,
-    TooltipTrigger,
-} from '@/components/ui/tooltip';
+
 import AppLayout from '@/layouts/AppLayout.vue';
-import {
-    create as employeeCreate,
-    destroy as employeeDestroy,
-    index as employeeIndex,
-    show as employeeShow,
-} from '@/routes/employees';
 
 import {
     create as loanCreate,
@@ -25,10 +14,9 @@ import {
 import { Head, router } from '@inertiajs/vue3';
 
 import DataTable from '@/components/DataTable.vue';
-import Dialog from '@/layouts/Dialog/Dialog.vue';
-import Pagination from '@/layouts/pagination/Pagination.vue';
-import { type BreadcrumbItem } from '@/types';
-import debounce from 'lodash.debounce';
+import Dialog from '@/layouts/dialog/Dialog.vue';
+import { Filter, type BreadcrumbItem } from '@/types';
+import debounce from 'lodash/debounce';
 import { Check, SquarePen, Trash2 } from '@lucide/vue';
 import { h, reactive, ref } from 'vue';
 import { toast } from 'vue-sonner';
@@ -36,7 +24,10 @@ import moment from 'moment';
 import { Loan } from '@/types/loans';
 import { ColumnDef } from '@tanstack/vue-table';
 import DragHandle from '@/components/DragHandle.vue';
-import { Checkbox } from '@/components/ui/checkbox';
+
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/ui/dropdown-menu';
+import { IconDotsVertical } from '@tabler/icons-vue';
+
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Employee Loan Maintenance',
@@ -49,21 +40,6 @@ const columns: ColumnDef<Loan>[] = [
         header: () => null,
         cell: ({ row }) => h(DragHandle),
     },
-    // {
-    //     id: "select",
-    //     header: ({ table }) => h(Checkbox, {
-    //         "modelValue": table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && "indeterminate"),
-    //         "onUpdate:modelValue": value => table.toggleAllPageRowsSelected(!!value),
-    //         "aria-label": "Select all",
-    //     }),
-    //     cell: ({ row }) => h(Checkbox, {
-    //         "modelValue": row.getIsSelected(),
-    //         "onUpdate:modelValue": value => row.toggleSelected(!!value),
-    //         "aria-label": "Select row",
-    //     }),
-    //     enableSorting: false,
-    //     enableHiding: false,
-    // },
     {
         accessorKey: "loan_type.LoanType",
         header: "Loan Type",
@@ -119,37 +95,56 @@ const columns: ColumnDef<Loan>[] = [
     },
     {
         id: "actions",
-        header: "Actions",
-        cell: ({ row }) =>
-            h("div", { class: "flex gap-2" }, [
-                h(Button, {
-                    variant: "outline",
-                    class: "cursor-pointer",
-                    onClick: () => { onEdit(row.original.id) },
-                }, {
-                    default: () => [h(SquarePen, { class: 'text-blue-500' })],
+        cell: ({ row }) => h(DropdownMenu, {}, {
+            default: () => [
+                h(DropdownMenuTrigger, { asChild: true }, {
+                    default: () => h(Button, {
+                        variant: "ghost",
+                        class: "h-8 w-8 p-0 cursor-pointer",
+                    }, {
+                        default: () => [
+                            h("span", { class: "sr-only" }, "Open menu"),
+                            h(IconDotsVertical, { class: "h-4 w-4 " }),
+                        ],
+                    }),
                 }),
-
-                h(Button, {
-                    variant: "outline",
-                    class: "cursor-pointer",
-                    onClick: () => { onDelete(row.original.id) },
-                }, {
-                    default: () => [h(Trash2, { class: 'text-red-500' })],
+                h(DropdownMenuContent, { align: "end" }, {
+                    default: () => [
+                        h(DropdownMenuItem, {
+                            class: "cursor-pointer",
+                            onSelect: () => {
+                                router.visit(loanShow(row.original.public_id))
+                            },
+                        }, () => [
+                            h(SquarePen, { class: "w-4 h-4  " }),
+                            "Edit"
+                        ]),
+                        h(DropdownMenuItem, {
+                            class: "cursor-pointer text-red-500",
+                            onSelect: () => {
+                                onDelete(row.original.public_id)
+                            },
+                        }, () => [h(Trash2, { class: "w-4 h-4  " }), "Delete"]),
+                    ],
                 }),
-            ]),
-    }
+            ],
+        }),
+    },
 ]
 
-
-const props = defineProps({ loans: Object, filter: Object, });
+const props = withDefaults(defineProps<{
+    loans: any[]
+    filter: Filter
+}>(), {
+})
 const form = reactive({
     search: props.filter?.search || '',
     page: 1,
     limit: 10,
 });
-const employeeID = ref('');
-const visible = ref(false);
+const public_id = ref<string>('');
+const visible = ref<boolean>(false);
+
 const filter = debounce(() => {
     router.get(loanIndex().url, form, {
         preserveState: true,
@@ -168,13 +163,8 @@ const formatCurrency = (value: number | string) => {
     }).format(Number(value));
 };
 
-const onEdit = (employee) => {
-    router.visit(loanShow(employee));
-};
-const newLoan = () => {
-    router.get(loanCreate());
-};
-const perPageChange = (value) => {
+
+const perPageChange = (value: number) => {
     form.limit = value;
     filter();
 };
@@ -183,13 +173,13 @@ const onSearch = (value: string) => {
     form.search = value;
     filter();
 };
-const onDelete = (id) => {
+const onDelete = (id: string) => {
     visible.value = true;
-    employeeID.value = id;
+    public_id.value = id;
 };
 
 const onConfirmDelete = () => {
-    router.delete(employeeDestroy(employeeID.value), {
+    router.delete(loanDestroy(public_id.value), {
         preserveState: true,
         onSuccess: () => {
             visible.value = false;
@@ -203,18 +193,29 @@ const onConfirmDelete = () => {
 </script>
 
 <template>
-
     <Head title="Employee Loan Maintenance" />
-
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="px-4 py-6">
-            <Heading title="Employee Loan Records" description="Manage employees loan record" />
-
-            <DataTable @search="onSearch" @per-page="perPageChange" @add="newLoan" :button-text="'New Loan'"
-                :data="loans" :columns="columns" />
-            <Dialog v-model="visible" title="Confirm Deletion"
-                message="Are you sure you want to delete this employee? This action cannot be undone."
-                confirmText="Delete" cancelText="Cancel" @confirm="onConfirmDelete" />
+            <Heading
+                title="Employee Loan Master"
+                description="Manage employees loan record"
+            />
+            <DataTable
+                @search="onSearch"
+                @per-page="perPageChange"
+                @add="router.visit(loanCreate())"
+                :button-text="'New Loan'"
+                :data="loans"
+                :columns="columns"
+            />
+            <Dialog
+                v-model="visible"
+                title="Confirmation"
+                description="Are you sure you want to delete this employee? This action cannot be undone."
+                confirmText="Delete"
+                cancelText="Cancel"
+                @confirm="onConfirmDelete"
+            />
         </div>
     </AppLayout>
 </template>

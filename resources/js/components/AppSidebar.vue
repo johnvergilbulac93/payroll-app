@@ -13,7 +13,7 @@ import {
 import { dashboard } from '@/routes';
 import { index as attendanceIndex } from '@/routes/attendance/processing';
 import { index as employeeIndex } from '@/routes/employees';
-import { index as userIndex } from '@/routes/user';
+import { index as userIndex } from '@/routes/users/accounts';
 import { index as loanIndex } from '@/routes/loan';
 import { Link } from '@inertiajs/vue3';
 import {
@@ -37,19 +37,19 @@ const navItems = [
         Children: []
     },
     {
-        Label: "User Setting",
+        Label: "User Management",
         Icon: UserCog,
         Url: userIndex(),
         Children: [],
     },
     {
-        Label: "Deduction Maintenance",
+        Label: "Deduction Management",
         Icon: FileMinus2,
         Url: '',
         Children: [],
     },
     {
-        Label: "Employee Maintenance",
+        Label: "Employee Management",
         Icon: Users,
         Url: '',
         Children: [
@@ -80,11 +80,17 @@ const navItems = [
 </script>
 
 <template>
-    <Sidebar collapsible="icon" variant="floating">
+    <Sidebar
+        collapsible="icon"
+        variant="floating"
+    >
         <SidebarHeader>
             <SidebarMenu>
                 <SidebarMenuItem>
-                    <SidebarMenuButton size="lg" as-child>
+                    <SidebarMenuButton
+                        size="lg"
+                        as-child
+                    >
                         <Link :href="dashboard()">
                             <AppLogo />
                         </Link>

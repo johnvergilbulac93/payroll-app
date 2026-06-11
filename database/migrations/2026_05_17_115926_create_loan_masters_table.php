@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('loan_masters', function (Blueprint $table) {
             $table->id();
+            $table->ulid('public_id')->unique(); 
             $table->integer('LoanTypeID');
             $table->string('EmpNbr');
             $table->decimal('OrigBal', 10, 2);

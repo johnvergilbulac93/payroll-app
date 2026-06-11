@@ -28,7 +28,7 @@ class EmployeeFormRequest extends FormRequest
             // 'EmpNbr' => 'required|unique:employees,EmpNbr,' . $this->id,
             'EmpNbr' => [
                 'required',
-                Rule::unique(Employee::class, 'EmpNbr')->ignore($this->id),
+                Rule::unique(Employee::class, 'EmpNbr')->ignore($this->public_id, 'public_id'),
             ],
             'Group' => ['required', 'string'],
             'FirstName' => ['required', 'string'],
@@ -47,7 +47,7 @@ class EmployeeFormRequest extends FormRequest
             'BasicPay' => ['nullable', 'numeric'],
             'DailyRate' => ['nullable', 'numeric'],
             'HourlyRate' => ['nullable', 'numeric'],
-            'Status' => ['nullable', 'string'],
+            'Status' => ['nullable', 'boolean'],
             'SSSNbr' => ['nullable', 'string'],
             'PHICNbr' => ['nullable', 'string'],
             'HDMFNbr' => ['nullable', 'string'],

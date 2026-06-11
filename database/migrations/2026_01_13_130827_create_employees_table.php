@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('employees', function (Blueprint $table) {
             $table->id();
+            $table->ulid('public_id')->unique();
             $table->string('EmpNbr', 15)->nullable();
             $table->char('Group', 2)->nullable();
             $table->string('FirstName')->nullable();
@@ -31,7 +32,7 @@ return new class extends Migration
             $table->decimal('BasicPay', 10, 2)->nullable();
             $table->decimal('DailyRate', 10, 2)->nullable();
             $table->decimal('HourlyRate', 10, 2)->nullable();
-            $table->string(column: 'Status')->nullable();
+            $table->boolean(column: 'Status')->default(true)->nullable();
             $table->string(column: 'SSSNbr')->nullable();
             $table->string(column: 'PHICNbr')->nullable();
             $table->string(column: 'HDMFNbr')->nullable();

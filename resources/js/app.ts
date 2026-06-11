@@ -7,6 +7,8 @@ import { createApp, h } from 'vue';
 import { Toaster } from 'vue-sonner';
 import 'vue-sonner/style.css';
 import { initializeTheme } from './composables/useAppearance';
+
+
 const appName = import.meta.env.VITE_APP_NAME || 'Payroll System';
 
 createInertiaApp({

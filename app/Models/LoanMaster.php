@@ -7,10 +7,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 use App\Models\LoanType;
 use App\Models\Employee;
+use Illuminate\Database\Eloquent\Concerns\HasUlids;
 
 class LoanMaster extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, HasUlids;
 
     protected $fillable = [
         'LoanTypeID',
@@ -25,6 +26,23 @@ class LoanMaster extends Model
         'Crtd_User',
         'LUpd_Date'
     ];
+
+    protected $hidden = [
+        'id'
+    ];
+
+    // Direct Laravel to look for 'public_id' instead of 'id' in URLs
+    public function getRouteKeyName(): string
+    {
+        return 'public_id';
+    }
+
+    // Direct the trait to fill 'public_id' instead of the default 'id'
+    public function uniqueIds(): array
+    {
+        return ['public_id'];
+    }
+
     public function loanType()
     {
         return $this->belongsTo(LoanType::class, 'LoanTypeID');
@@ -32,6 +50,10 @@ class LoanMaster extends Model
     public function employee()
     {
         return $this->belongsTo(Employee::class, 'EmpNbr', 'EmpNbr');
+    }
+    public static function findByPublicId(string $id): self
+    {
+        return static::where('public_id', '=', $id)->firstOrFail();
     }
     public function scopeFilter($query, $filters)
     {

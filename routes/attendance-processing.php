@@ -8,7 +8,7 @@ use App\Http\Controllers\Settings\TwoFactorAuthenticationController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-Route::middleware(['auth'])->controller(P::class)->group(function () {
+Route::middleware(['auth'])->group(function () {
 
     Route::redirect('attendance', '/attendance/upload');
 
